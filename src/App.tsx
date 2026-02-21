@@ -342,9 +342,9 @@ export default function App() {
               </div>
             </div>
 
-            {/* Charts — second on mobile */}
+            {/* Charts — second on mobile, full-bleed */}
             <div className="lg:col-span-5 order-2 lg:order-3">
-              <div className="glass-panel rounded-2xl p-5">
+              <div className="glass-panel rounded-2xl p-2 sm:p-4">
                 <SimulationCharts data={simData} currentTime={hasPlayed ? currentTime : maxTime} maxTime={maxTime} />
               </div>
             </div>

@@ -91,7 +91,7 @@ const CHART_STYLE = {
   background: 'linear-gradient(160deg, rgba(20,12,4,0.6), rgba(30,20,8,0.4))',
   borderRadius: '14px',
   border: '1px solid rgba(92,60,24,0.3)',
-  padding: '14px 8px 8px',
+  padding: '10px 2px 4px',
 }
 
 const GRID_COLOR = 'rgba(61,40,16,0.6)'
@@ -99,9 +99,9 @@ const AXIS_COLOR = '#5c3c18'
 
 // Custom legend items (we render our own above the chart)
 const LEGEND_ITEMS = [
-  { color: '#f59e0b', glow: '#f59e0b88', label: '🌡️ Temperature (°C)', key: 'temp' },
-  { color: '#818cf8', glow: '#818cf888', label: '💨 Pressure (bar)', key: 'pressure' },
-  { color: '#34d399', glow: '#34d39988', label: '☕ Extraction (%)', key: 'extraction' },
+  { color: '#f59e0b', glow: '#f59e0b88', label: 'Temp °C', key: 'temp' },
+  { color: '#818cf8', glow: '#818cf888', label: 'Pressure', key: 'pressure' },
+  { color: '#34d399', glow: '#34d39988', label: 'Extraction', key: 'extraction' },
 ]
 
 interface LegendPayload {
@@ -111,10 +111,10 @@ interface LegendPayload {
 
 function ChartLegend(_props: { payload?: LegendPayload[] }) {
   return (
-    <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid rgba(92,60,24,0.2)' }}>
+    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6, paddingBottom: 4, borderBottom: '1px solid rgba(92,60,24,0.2)' }}>
       {LEGEND_ITEMS.map(item => (
-        <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'rgba(200,165,110,0.8)' }}>
-          <span style={{ width: 9, height: 9, borderRadius: '50%', background: item.color, display: 'inline-block', boxShadow: `0 0 6px ${item.glow}` }} />
+        <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: 'rgba(200,165,110,0.8)' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: item.color, display: 'inline-block', boxShadow: `0 0 6px ${item.glow}` }} />
           {item.label}
         </div>
       ))}
@@ -152,8 +152,8 @@ export default function SimulationCharts({ data, currentTime, maxTime }: Props) 
 
   return (
     <div style={CHART_STYLE}>
-      <ResponsiveContainer width="100%" height={320}>
-        <AreaChart data={visibleData} margin={{ top: 8, right: 48, left: -8, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height={280} minWidth={0}>
+        <AreaChart data={visibleData} margin={{ top: 8, right: 30, left: -16, bottom: 0 }}>
           <defs>
             <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.45} />
@@ -202,11 +202,12 @@ export default function SimulationCharts({ data, currentTime, maxTime }: Props) 
             yAxisId="right"
             orientation="right"
             stroke="#4a5568"
-            fontSize={10}
+            fontSize={9}
             domain={[0, pressureCeil]}
-            tickFormatter={v => `${v} bar`}
+            tickFormatter={v => `${v}b`}
             tickLine={false}
             axisLine={false}
+            width={30}
           />
 
           {/* Custom legend rendered at top */}
