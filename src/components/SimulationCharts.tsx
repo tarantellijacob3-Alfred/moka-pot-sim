@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Area, AreaChart, ReferenceLine, Legend
@@ -122,18 +123,26 @@ function ChartLegend(_props: { payload?: LegendPayload[] }) {
 }
 
 export default function SimulationCharts({ data, currentTime, maxTime }: Props) {
-  // Build visible data with extractionScaled for visual mapping
-  const visibleData = data
-    .filter(p => p.time <= currentTime)
-    .map(p => ({
-      ...p,
-      extractionScaled: p.extractionPct * 1.15,
-    }))
+  // Round to nearest second — data points are 1s apart, no need for sub-second updates
+  const roundedTime = Math.round(currentTime)
 
-  const { brewStart, doneStart } = getPhaseTransitions(data)
+  // Memoize visible data so Recharts only re-renders when we have a new data point
+  const visibleData = useMemo(() =>
+    data
+      .filter(p => p.time <= roundedTime)
+      .map(p => ({
+        ...p,
+        extractionScaled: p.extractionPct * 1.15,
+      })),
+    [data, roundedTime]
+  )
+
+  const { brewStart, doneStart } = useMemo(() => getPhaseTransitions(data), [data])
   // Pre-compute fixed pressure domain from full data so Y-axis doesn't jump
-  const maxPressure = Math.max(...data.map(p => p.pressure), 0.5)
-  const pressureCeil = Math.ceil(maxPressure * 2) / 2 // round up to nearest 0.5
+  const pressureCeil = useMemo(() => {
+    const mp = Math.max(...data.map(p => p.pressure), 0.5)
+    return Math.ceil(mp * 2) / 2
+  }, [data])
 
   const refLineProps = {
     strokeDasharray: '4 3' as const,
@@ -247,6 +256,7 @@ export default function SimulationCharts({ data, currentTime, maxTime }: Props) 
             strokeWidth={2.5}
             fill="url(#tempGrad)"
             dot={false}
+            isAnimationActive={false}
             activeDot={{ r: 4, fill: '#f59e0b', stroke: '#1e1408', strokeWidth: 2 }}
           />
 
@@ -260,6 +270,7 @@ export default function SimulationCharts({ data, currentTime, maxTime }: Props) 
             strokeWidth={2.5}
             fill="url(#extractGrad)"
             dot={false}
+            isAnimationActive={false}
             activeDot={{ r: 4, fill: '#34d399', stroke: '#1e1408', strokeWidth: 2 }}
           />
 
@@ -273,6 +284,7 @@ export default function SimulationCharts({ data, currentTime, maxTime }: Props) 
             strokeWidth={2.5}
             fill="url(#pressGrad)"
             dot={false}
+            isAnimationActive={false}
             activeDot={{ r: 4, fill: '#818cf8', stroke: '#1e1408', strokeWidth: 2 }}
           />
         </AreaChart>
