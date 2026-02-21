@@ -29,12 +29,15 @@ export default function App() {
   const animRef = useRef<number | null>(null)
   const lastFrameRef = useRef<number>(0)
 
+  const [hasPlayed, setHasPlayed] = useState(false)
+
   // Run simulation when params change
   useEffect(() => {
     const data = simulate(params)
     setSimData(data)
     setCurrentTime(0)
     setIsPlaying(false)
+    setHasPlayed(false)
   }, [params])
 
   // Animation loop
@@ -68,14 +71,16 @@ export default function App() {
     }
   }, [isPlaying, animate])
 
-  const currentPoint = simData.find(p => p.time >= currentTime) || simData[simData.length - 1] || null
+  const maxTime = simData[simData.length - 1]?.time || 0
+  const displayTime = hasPlayed ? currentTime : maxTime
+  const currentPoint = simData.find(p => p.time >= displayTime) || simData[simData.length - 1] || null
   const brewTime = getBrewTime(simData)
   const peakPressure = getPeakPressure(simData)
   const bp = boilingPoint(params.altitude)
-  const maxTime = simData[simData.length - 1]?.time || 0
 
   const handlePlay = () => {
     if (currentTime >= maxTime) setCurrentTime(0)
+    setHasPlayed(true)
     setIsPlaying(!isPlaying)
   }
 
@@ -97,6 +102,7 @@ export default function App() {
         onChange={e => {
           setCurrentTime(Number(e.target.value))
           setIsPlaying(false)
+          setHasPlayed(true)
         }}
         className="w-full"
         style={{ margin: 0 }}
@@ -267,7 +273,7 @@ export default function App() {
             {/* Right: Charts */}
             <div className="lg:col-span-5">
               <div className="glass-panel rounded-2xl p-5">
-                <SimulationCharts data={simData} currentTime={currentTime} />
+                <SimulationCharts data={simData} currentTime={hasPlayed ? currentTime : maxTime} />
               </div>
             </div>
           </div>

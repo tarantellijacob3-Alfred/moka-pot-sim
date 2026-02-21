@@ -14,316 +14,288 @@ export default function MokaPotDiagram({ currentPoint, potMaterial }: Props) {
   const waterLevel = Math.max(0, 100 - extraction)
   const coffeeLevel = extraction
 
-  // Water color based on temperature
   const waterHue = Math.max(0, 200 - (temp / 100) * 200)
   const waterColor = `hsl(${waterHue}, 70%, 50%)`
 
   const showBubbles = temp > 85
   const showSteam = phase === 'brewing' || temp > 95
+  const isHot = temp > 70
 
-  // Material colors
-  const potBody = potMaterial === 'aluminum' ? '#b8b8b8' : '#707070'
-  const potLight = potMaterial === 'aluminum' ? '#d4d4d4' : '#909090'
-  const potDark = potMaterial === 'aluminum' ? '#8a8a8a' : '#505050'
-  const potShine = potMaterial === 'aluminum' ? '#e8e8e8' : '#a0a0a0'
+  // 3D material colors — richer gradients
+  const isAlu = potMaterial === 'aluminum'
+  const bodyMain = isAlu ? '#c8c8c8' : '#6a6a6a'
+  const bodyLight = isAlu ? '#e8e8e8' : '#999'
+  const bodyDark = isAlu ? '#7a7a7a' : '#3a3a3a'
+  const bodyShine = isAlu ? '#f4f4f4' : '#b0b0b0'
+  const bodyShadow = isAlu ? '#555' : '#222'
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 240 380" className="w-48 sm:w-56 md:w-64 drop-shadow-2xl">
+      <svg viewBox="0 0 260 400" className="w-52 sm:w-60 md:w-72" style={{ filter: isHot ? 'drop-shadow(0 0 20px rgba(255,140,50,0.15))' : 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))' }}>
         <defs>
-          {/* Metallic gradient for pot body */}
-          <linearGradient id="potGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={potDark} />
-            <stop offset="25%" stopColor={potLight} />
-            <stop offset="45%" stopColor={potShine} />
-            <stop offset="60%" stopColor={potLight} />
-            <stop offset="100%" stopColor={potDark} />
+          {/* 3D body gradient — cylindrical highlight */}
+          <linearGradient id="body3d" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={bodyShadow} />
+            <stop offset="15%" stopColor={bodyDark} />
+            <stop offset="35%" stopColor={bodyMain} />
+            <stop offset="48%" stopColor={bodyShine} />
+            <stop offset="55%" stopColor={bodyLight} />
+            <stop offset="70%" stopColor={bodyMain} />
+            <stop offset="90%" stopColor={bodyDark} />
+            <stop offset="100%" stopColor={bodyShadow} />
           </linearGradient>
-          <linearGradient id="potGradientDark" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor={potDark} />
-            <stop offset="30%" stopColor={potBody} />
-            <stop offset="50%" stopColor={potLight} />
-            <stop offset="70%" stopColor={potBody} />
-            <stop offset="100%" stopColor={potDark} />
+          {/* Darker version for lower chamber */}
+          <linearGradient id="body3dLower" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor={bodyShadow} />
+            <stop offset="18%" stopColor={bodyDark} />
+            <stop offset="40%" stopColor={bodyMain} />
+            <stop offset="50%" stopColor={bodyLight} />
+            <stop offset="62%" stopColor={bodyMain} />
+            <stop offset="85%" stopColor={bodyDark} />
+            <stop offset="100%" stopColor={bodyShadow} />
           </linearGradient>
-          {/* Lid knob gradient */}
-          <radialGradient id="knobGradient" cx="40%" cy="35%">
-            <stop offset="0%" stopColor="#333" />
-            <stop offset="100%" stopColor="#111" />
+          {/* Rim/band gradient — polished metal ring */}
+          <linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={bodyShine} />
+            <stop offset="30%" stopColor={bodyMain} />
+            <stop offset="50%" stopColor={bodyDark} />
+            <stop offset="70%" stopColor={bodyMain} />
+            <stop offset="100%" stopColor={bodyShine} />
+          </linearGradient>
+          {/* Lid top ellipse — 3D curve */}
+          <radialGradient id="lidTop" cx="45%" cy="40%">
+            <stop offset="0%" stopColor={bodyShine} />
+            <stop offset="60%" stopColor={bodyMain} />
+            <stop offset="100%" stopColor={bodyDark} />
           </radialGradient>
-          {/* Handle gradient */}
-          <linearGradient id="handleGradient" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#1a1a1a" />
-            <stop offset="50%" stopColor="#333" />
-            <stop offset="100%" stopColor="#1a1a1a" />
+          {/* Knob */}
+          <radialGradient id="knob3d" cx="38%" cy="30%">
+            <stop offset="0%" stopColor="#555" />
+            <stop offset="50%" stopColor="#222" />
+            <stop offset="100%" stopColor="#0a0a0a" />
+          </radialGradient>
+          {/* Handle */}
+          <linearGradient id="handle3d" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#0a0a0a" />
+            <stop offset="30%" stopColor="#333" />
+            <stop offset="50%" stopColor="#444" />
+            <stop offset="70%" stopColor="#333" />
+            <stop offset="100%" stopColor="#0a0a0a" />
+          </linearGradient>
+          {/* Hot glow */}
+          <radialGradient id="hotGlow" cx="50%" cy="80%">
+            <stop offset="0%" stopColor="rgba(255,120,40,0.15)" />
+            <stop offset="100%" stopColor="rgba(255,120,40,0)" />
+          </radialGradient>
+          {/* Water gradient */}
+          <linearGradient id="waterGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={waterColor} stopOpacity="0.7" />
+            <stop offset="100%" stopColor={waterColor} stopOpacity="0.5" />
+          </linearGradient>
+          {/* Coffee gradient */}
+          <linearGradient id="coffeeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#5c2a00" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#3d1a00" stopOpacity="0.8" />
           </linearGradient>
         </defs>
 
+        {/* ====== HOT GLOW ====== */}
+        {isHot && <ellipse cx="130" cy="300" rx="100" ry="80" fill="url(#hotGlow)" />}
+
         {/* ====== STEAM ====== */}
         {showSteam && (
-          <g opacity="0.6">
-            {[0, 1, 2, 3, 4].map(i => (
+          <g>
+            {[0, 1, 2, 3].map(i => (
+              <path
+                key={i}
+                d={`M ${115 + i * 10} 48 C ${110 + i * 10} 30, ${120 + i * 10} 15, ${113 + i * 10} 0`}
+                fill="none"
+                stroke="rgba(255,255,255,0.12)"
+                strokeWidth={2.5 + i * 0.5}
+                strokeLinecap="round"
+              >
+                <animate
+                  attributeName="d"
+                  values={`M ${115 + i * 10} 48 C ${110 + i * 10} 30, ${120 + i * 10} 15, ${113 + i * 10} 0;M ${115 + i * 10} 48 C ${122 + i * 10} 28, ${108 + i * 10} 12, ${118 + i * 10} -5;M ${115 + i * 10} 48 C ${110 + i * 10} 30, ${120 + i * 10} 15, ${113 + i * 10} 0`}
+                  dur={`${2.2 + i * 0.5}s`}
+                  repeatCount="indefinite"
+                />
+                <animate attributeName="opacity" values="0.15;0.03;0.15" dur={`${2.2 + i * 0.5}s`} repeatCount="indefinite" />
+              </path>
+            ))}
+          </g>
+        )}
+
+        {/* ====== KNOB (bakelite) ====== */}
+        <ellipse cx="130" cy="52" rx="14" ry="6" fill="url(#knob3d)" />
+        <ellipse cx="130" cy="50" rx="12" ry="5" fill="#1a1a1a" />
+        <ellipse cx="127" cy="49" rx="5" ry="2.5" fill="#333" opacity="0.5" />
+
+        {/* ====== LID ====== */}
+        <ellipse cx="130" cy="60" rx="42" ry="10" fill="url(#lidTop)" stroke={bodyDark} strokeWidth="0.5" />
+        {/* Lid rim shadow */}
+        <ellipse cx="130" cy="62" rx="42" ry="9" fill="none" stroke={bodyShadow} strokeWidth="0.5" opacity="0.4" />
+
+        {/* ====== UPPER CHAMBER ====== */}
+        <path
+          d="M 88 60 L 83 75 L 80 140 L 180 140 L 177 75 L 172 60"
+          fill="url(#body3d)"
+          stroke={bodyDark}
+          strokeWidth="0.3"
+        />
+        {/* 3D highlight strip */}
+        <path d="M 100 62 L 97 138 L 110 138 L 113 62" fill={bodyShine} opacity="0.12" />
+        {/* Shadow strip right */}
+        <path d="M 160 62 L 163 138 L 172 138 L 169 62" fill={bodyShadow} opacity="0.15" />
+
+        {/* Coffee in upper chamber */}
+        {coffeeLevel > 0 && (
+          <>
+            <clipPath id="upperClip">
+              <path d="M 82 64 L 80 140 L 180 140 L 178 64 Z" />
+            </clipPath>
+            <rect
+              x="80" y={140 - (coffeeLevel / 100) * 72}
+              width="100" height={(coffeeLevel / 100) * 72}
+              fill="url(#coffeeGrad)"
+              clipPath="url(#upperClip)"
+            >
+              <animate attributeName="opacity" values="0.75;0.9;0.75" dur="2.5s" repeatCount="indefinite" />
+            </rect>
+          </>
+        )}
+
+        {/* ====== SPOUT ====== */}
+        <path
+          d="M 177 80 C 196 80 200 88 200 100 C 200 112 195 116 185 113"
+          fill="none"
+          stroke="url(#body3d)"
+          strokeWidth="8"
+          strokeLinecap="round"
+        />
+        {/* Spout highlight */}
+        <path
+          d="M 178 81 C 194 81 197 88 197 99 C 197 109 193 112 185 110"
+          fill="none"
+          stroke={bodyShine}
+          strokeWidth="1.5"
+          opacity="0.25"
+        />
+
+        {/* ====== HANDLE (bakelite, 3D) ====== */}
+        <path
+          d="M 88 68 C 50 70 44 105 46 135 C 48 160 56 164 82 148"
+          fill="none"
+          stroke="url(#handle3d)"
+          strokeWidth="12"
+          strokeLinecap="round"
+        />
+        {/* Handle inner shine */}
+        <path
+          d="M 86 70 C 56 72 50 104 52 132 C 54 155 60 158 80 145"
+          fill="none"
+          stroke="#555"
+          strokeWidth="1.5"
+          opacity="0.25"
+          strokeLinecap="round"
+        />
+
+        {/* ====== WAIST BAND ====== */}
+        <rect x="77" y="138" width="106" height="12" rx="1" fill="url(#rimGrad)" stroke={bodyDark} strokeWidth="0.3" />
+        {/* Band shine */}
+        <rect x="77" y="139" width="106" height="4" rx="1" fill={bodyShine} opacity="0.2" />
+        {/* Safety valve */}
+        <circle cx="180" cy="144" r="5" fill="url(#body3d)" stroke={bodyDark} strokeWidth="0.5" />
+        <circle cx="179" cy="143" r="2.5" fill={bodyShine} opacity="0.2" />
+
+        {/* ====== FILTER BASKET (grounds) ====== */}
+        <path
+          d="M 83 150 L 81 180 L 179 180 L 177 150"
+          fill="#6b4423"
+          stroke={bodyDark}
+          strokeWidth="0.5"
+        />
+        {/* Grounds texture */}
+        {[0,1,2,3,4,5,6,7,8,9,10].map(i => (
+          <circle key={i} cx={92 + (i % 6) * 15} cy={157 + Math.floor(i / 6) * 12} r={2 + (i % 3) * 0.5}
+            fill={i % 2 === 0 ? '#8B5E3C' : '#4a2c0a'} opacity="0.5" />
+        ))}
+        {/* Perforated plate */}
+        <line x1="81" y1="180" x2="179" y2="180" stroke={bodyDark} strokeWidth="2" strokeDasharray="3,2" />
+
+        {/* ====== LOWER CHAMBER ====== */}
+        <path
+          d="M 81 180 L 72 300 Q 72 330 130 330 Q 188 330 188 300 L 179 180"
+          fill="url(#body3dLower)"
+          stroke={bodyDark}
+          strokeWidth="0.3"
+        />
+        {/* 3D highlight strip on lower body */}
+        <path d="M 95 182 L 88 315 Q 90 325 105 327 L 110 182" fill={bodyShine} opacity="0.08" />
+        {/* Shadow on right of lower body */}
+        <path d="M 165 182 L 172 315 Q 175 325 180 315 L 175 182" fill={bodyShadow} opacity="0.1" />
+        {/* Bottom ellipse to show 3D roundness */}
+        <ellipse cx="130" cy="325" rx="55" ry="10" fill={bodyShadow} opacity="0.2" />
+
+        {/* Water */}
+        <clipPath id="lowerClip">
+          <path d="M 74 184 L 72 300 Q 72 330 130 330 Q 188 330 188 300 L 186 184 Z" />
+        </clipPath>
+        <rect
+          x="72" y={330 - (waterLevel / 100) * 140}
+          width="116" height={(waterLevel / 100) * 140}
+          fill="url(#waterGrad)"
+          clipPath="url(#lowerClip)"
+        />
+
+        {/* Bubbles */}
+        {showBubbles && (
+          <g clipPath="url(#lowerClip)">
+            {[0,1,2,3,4,5,6].map(i => (
+              <circle key={i} cx={95 + i * 12} cy={310} r={1.5 + (i % 3)}
+                fill="rgba(255,255,255,0.3)">
+                <animate attributeName="cy" values={`${310};${230};${310}`} dur={`${1 + i * 0.2}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.35;0;0.35" dur={`${1 + i * 0.2}s`} repeatCount="indefinite" />
+              </circle>
+            ))}
+          </g>
+        )}
+
+        {/* ====== STOVE ====== */}
+        <rect x="50" y="335" width="160" height="5" rx="2.5" fill="#555" />
+        {[0,1,2,3,4,5,6,7].map(i => (
+          <rect key={i} x={60 + i * 18} y="333" width="4" height="7" rx="1.5" fill="#666" />
+        ))}
+
+        {/* Flames */}
+        {phase !== 'done' && (
+          <g>
+            {[0,1,2,3,4,5,6,7].map(i => (
               <g key={i}>
                 <path
-                  d={`M ${105 + i * 8} 42 Q ${100 + i * 8} ${25 - i * 3} ${108 + i * 8} ${10 - i * 2}`}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.2)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
+                  d={`M ${65 + i * 16} 360 Q ${67.5 + i * 16} 342 ${70 + i * 16} 360`}
+                  fill="#ff6b20" opacity="0.65"
                 >
                   <animate
-                    attributeName="opacity"
-                    values="0.3;0.05;0.3"
-                    dur={`${1.5 + i * 0.4}s`}
-                    repeatCount="indefinite"
+                    attributeName="d"
+                    values={`M ${65 + i * 16} 360 Q ${67.5 + i * 16} 342 ${70 + i * 16} 360;M ${65 + i * 16} 360 Q ${67.5 + i * 16} 338 ${70 + i * 16} 360;M ${65 + i * 16} 360 Q ${67.5 + i * 16} 342 ${70 + i * 16} 360`}
+                    dur={`${0.35 + i * 0.06}s`} repeatCount="indefinite"
                   />
+                </path>
+                <path
+                  d={`M ${66.5 + i * 16} 360 Q ${67.5 + i * 16} 348 ${68.5 + i * 16} 360`}
+                  fill="#4488ff" opacity="0.45"
+                >
                   <animate
                     attributeName="d"
-                    values={`M ${105 + i * 8} 42 Q ${100 + i * 8} ${25 - i * 3} ${108 + i * 8} ${10 - i * 2};M ${105 + i * 8} 42 Q ${112 + i * 8} ${20 - i * 3} ${103 + i * 8} ${5 - i * 2};M ${105 + i * 8} 42 Q ${100 + i * 8} ${25 - i * 3} ${108 + i * 8} ${10 - i * 2}`}
-                    dur={`${2 + i * 0.3}s`}
-                    repeatCount="indefinite"
+                    values={`M ${66.5 + i * 16} 360 Q ${67.5 + i * 16} 348 ${68.5 + i * 16} 360;M ${66.5 + i * 16} 360 Q ${67.5 + i * 16} 345 ${68.5 + i * 16} 360;M ${66.5 + i * 16} 360 Q ${67.5 + i * 16} 348 ${68.5 + i * 16} 360`}
+                    dur={`${0.3 + i * 0.05}s`} repeatCount="indefinite"
                   />
                 </path>
               </g>
             ))}
           </g>
         )}
-
-        {/* ====== LID KNOB (black bakelite) ====== */}
-        <ellipse cx="120" cy="44" rx="12" ry="5" fill="url(#knobGradient)" />
-        <rect x="112" y="44" width="16" height="6" rx="2" fill="url(#knobGradient)" />
-        <ellipse cx="120" cy="43" rx="10" ry="4" fill="#222" />
-        <ellipse cx="118" cy="42" rx="4" ry="2" fill="#444" opacity="0.4" />
-
-        {/* ====== LID ====== */}
-        <ellipse cx="120" cy="52" rx="38" ry="8" fill="url(#potGradient)" />
-        <path
-          d="M 82 52 Q 82 56 120 58 Q 158 56 158 52"
-          fill={potDark}
-          opacity="0.3"
-        />
-
-        {/* ====== UPPER CHAMBER (octagonal/faceted look) ====== */}
-        <path
-          d="M 82 52 L 78 65 L 75 130 L 165 130 L 162 65 L 158 52"
-          fill="url(#potGradient)"
-          stroke={potDark}
-          strokeWidth="0.5"
-        />
-        {/* Facet lines to suggest octagonal shape */}
-        <line x1="90" y1="54" x2="87" y2="130" stroke={potShine} strokeWidth="0.5" opacity="0.4" />
-        <line x1="150" y1="54" x2="153" y2="130" stroke={potDark} strokeWidth="0.5" opacity="0.4" />
-        <line x1="105" y1="52" x2="102" y2="130" stroke={potShine} strokeWidth="0.3" opacity="0.2" />
-        <line x1="135" y1="52" x2="138" y2="130" stroke={potDark} strokeWidth="0.3" opacity="0.2" />
-
-        {/* Shine highlight on upper body */}
-        <path
-          d="M 92 55 L 90 125 L 105 125 L 107 55"
-          fill={potShine}
-          opacity="0.15"
-        />
-
-        {/* Coffee filling upper chamber */}
-        {coffeeLevel > 0 && (
-          <>
-            <clipPath id="upperChamber">
-              <path d="M 78 56 L 75 130 L 165 130 L 162 56 Z" />
-            </clipPath>
-            <rect
-              x="75"
-              y={130 - (coffeeLevel / 100) * 70}
-              width="90"
-              height={(coffeeLevel / 100) * 70}
-              fill="#3d1a00"
-              clipPath="url(#upperChamber)"
-              opacity="0.8"
-            >
-              <animate
-                attributeName="opacity"
-                values="0.7;0.85;0.7"
-                dur="2s"
-                repeatCount="indefinite"
-              />
-            </rect>
-            {/* Coffee surface shine */}
-            <line
-              x1="80"
-              y1={130 - (coffeeLevel / 100) * 70}
-              x2="160"
-              y2={130 - (coffeeLevel / 100) * 70}
-              stroke="#5c2a00"
-              strokeWidth="1.5"
-              clipPath="url(#upperChamber)"
-              opacity="0.6"
-            />
-          </>
-        )}
-
-        {/* ====== SPOUT ====== */}
-        <path
-          d="M 162 72 C 178 72 182 78 182 88 C 182 98 178 102 170 100"
-          fill="none"
-          stroke="url(#potGradient)"
-          strokeWidth="7"
-          strokeLinecap="round"
-        />
-        <path
-          d="M 162 72 C 176 72 180 77 180 87 C 180 96 176 99 170 98"
-          fill="none"
-          stroke={potShine}
-          strokeWidth="1"
-          opacity="0.3"
-        />
-        {/* Spout opening */}
-        <ellipse cx="171" cy="99" rx="4" ry="2.5" fill={potDark} />
-
-        {/* ====== HANDLE (black bakelite, curved) ====== */}
-        <path
-          d="M 78 60 C 45 62 40 95 42 120 C 44 145 50 148 75 135"
-          fill="none"
-          stroke="url(#handleGradient)"
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        {/* Handle inner highlight */}
-        <path
-          d="M 78 60 C 50 62 46 95 48 118 C 50 140 54 143 75 133"
-          fill="none"
-          stroke="#444"
-          strokeWidth="2"
-          opacity="0.3"
-          strokeLinecap="round"
-        />
-
-        {/* ====== WAIST / JOINT BAND ====== */}
-        <rect x="72" y="128" width="96" height="10" rx="1" fill={potBody} stroke={potDark} strokeWidth="0.5" />
-        <rect x="72" y="129" width="96" height="3" fill={potShine} opacity="0.3" />
-        {/* Safety valve bump */}
-        <circle cx="165" cy="133" r="4" fill={potBody} stroke={potDark} strokeWidth="0.5" />
-        <circle cx="165" cy="132" r="2" fill={potShine} opacity="0.3" />
-
-        {/* ====== FILTER BASKET (inside, visible through cross-section feel) ====== */}
-        <path
-          d="M 78 138 L 76 168 L 164 168 L 162 138"
-          fill="#6b4423"
-          stroke={potDark}
-          strokeWidth="0.5"
-          opacity="0.9"
-        />
-        {/* Grounds texture */}
-        <pattern id="groundsPattern" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
-          <circle cx="2" cy="2" r="1.2" fill="#8B5E3C" opacity="0.6" />
-          <circle cx="6" cy="6" r="1" fill="#4a2c0a" opacity="0.4" />
-          <circle cx="5" cy="2" r="0.8" fill="#7a4a28" opacity="0.5" />
-        </pattern>
-        <rect x="78" y="140" width="84" height="26" fill="url(#groundsPattern)" opacity="0.7" />
-        {/* Perforated plate line */}
-        <line x1="76" y1="168" x2="164" y2="168" stroke={potDark} strokeWidth="1.5" strokeDasharray="2,2" />
-
-        {/* ====== LOWER CHAMBER (boiler) ====== */}
-        <path
-          d="M 76 168 L 68 280 Q 68 310 120 310 Q 172 310 172 280 L 164 168"
-          fill="url(#potGradientDark)"
-          stroke={potDark}
-          strokeWidth="0.5"
-        />
-        {/* Facet lines on lower body */}
-        <line x1="85" y1="170" x2="78" y2="300" stroke={potShine} strokeWidth="0.5" opacity="0.3" />
-        <line x1="155" y1="170" x2="162" y2="300" stroke={potDark} strokeWidth="0.5" opacity="0.3" />
-        {/* Shine on lower body */}
-        <path
-          d="M 87 172 L 80 295 Q 82 305 95 307 L 100 172"
-          fill={potShine}
-          opacity="0.1"
-        />
-
-        {/* Water in lower chamber */}
-        <clipPath id="lowerChamber">
-          <path d="M 70 172 L 68 280 Q 68 310 120 310 Q 172 310 172 280 L 170 172 Z" />
-        </clipPath>
-        <rect
-          x="68"
-          y={310 - (waterLevel / 100) * 130}
-          width="104"
-          height={(waterLevel / 100) * 130}
-          fill={waterColor}
-          clipPath="url(#lowerChamber)"
-          opacity="0.6"
-        />
-
-        {/* Bubbles */}
-        {showBubbles && (
-          <g clipPath="url(#lowerChamber)">
-            {[0, 1, 2, 3, 4, 5].map(i => (
-              <circle
-                key={i}
-                cx={90 + i * 14}
-                cy={290}
-                r={1.5 + (i % 3)}
-                fill="rgba(255,255,255,0.35)"
-              >
-                <animate
-                  attributeName="cy"
-                  values={`${290};${220};${290}`}
-                  dur={`${1.2 + i * 0.25}s`}
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  values="0.4;0;0.4"
-                  dur={`${1.2 + i * 0.25}s`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-            ))}
-          </g>
-        )}
-
-        {/* ====== STOVE GRATE ====== */}
-        <rect x="45" y="315" width="150" height="4" rx="2" fill="#555" />
-        {/* Grate bars */}
-        {[0, 1, 2, 3, 4, 5, 6].map(i => (
-          <rect key={i} x={55 + i * 19} y="313" width="3" height="6" rx="1" fill="#666" />
-        ))}
-
-        {/* Flames */}
-        <g>
-          {[0, 1, 2, 3, 4, 5, 6].map(i => (
-            <g key={i}>
-              {/* Outer flame (orange) */}
-              <path
-                d={`M ${62 + i * 17} 340 Q ${65 + i * 17} ${phase !== 'done' ? 322 : 335} ${68 + i * 17} 340`}
-                fill={phase !== 'done' ? '#ff6b20' : '#444'}
-                opacity={phase !== 'done' ? 0.7 : 0.2}
-              >
-                {phase !== 'done' && (
-                  <animate
-                    attributeName="d"
-                    values={`M ${62 + i * 17} 340 Q ${65 + i * 17} 322 ${68 + i * 17} 340;M ${62 + i * 17} 340 Q ${65 + i * 17} 318 ${68 + i * 17} 340;M ${62 + i * 17} 340 Q ${65 + i * 17} 322 ${68 + i * 17} 340`}
-                    dur={`${0.4 + i * 0.08}s`}
-                    repeatCount="indefinite"
-                  />
-                )}
-              </path>
-              {/* Inner flame (blue) */}
-              {phase !== 'done' && (
-                <path
-                  d={`M ${63.5 + i * 17} 340 Q ${65 + i * 17} 328 ${66.5 + i * 17} 340`}
-                  fill="#4488ff"
-                  opacity="0.5"
-                >
-                  <animate
-                    attributeName="d"
-                    values={`M ${63.5 + i * 17} 340 Q ${65 + i * 17} 328 ${66.5 + i * 17} 340;M ${63.5 + i * 17} 340 Q ${65 + i * 17} 325 ${66.5 + i * 17} 340;M ${63.5 + i * 17} 340 Q ${65 + i * 17} 328 ${66.5 + i * 17} 340`}
-                    dur={`${0.35 + i * 0.07}s`}
-                    repeatCount="indefinite"
-                  />
-                </path>
-              )}
-            </g>
-          ))}
-        </g>
       </svg>
 
       {/* Status indicators */}
