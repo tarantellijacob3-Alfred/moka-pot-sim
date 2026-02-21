@@ -157,14 +157,14 @@ export default function App() {
           boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-5">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-5">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-coffee-100 tracking-tight flex items-center gap-3">
+              <h1 className="text-xl sm:text-3xl font-bold text-coffee-100 tracking-tight flex items-center gap-2">
                 ☕ MokaSim
               </h1>
-              <p className="text-coffee-500 text-sm mt-0.5">
-                Moka pot thermodynamics simulator & stove matcher
+              <p className="text-coffee-500 text-xs sm:text-sm mt-0.5 hidden sm:block">
+                Moka pot thermodynamics simulator
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-2 text-xs text-coffee-500">
@@ -174,21 +174,15 @@ export default function App() {
               >
                 Real Physics
               </span>
-              <span
-                className="px-2.5 py-1 rounded-full"
-                style={{ background: 'rgba(61,40,16,0.6)', border: '1px solid rgba(92,60,24,0.4)' }}
-              >
-                Interactive
-              </span>
             </div>
           </div>
         </div>
       </header>
 
       {/* ── Tab Navigation ── */}
-      <div className="max-w-7xl mx-auto px-4 mt-5">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-3 sm:mt-5">
         <div
-          className="flex gap-1 p-1 rounded-2xl"
+          className="flex gap-0.5 sm:gap-1 p-1 rounded-2xl overflow-x-auto"
           style={{
             background: 'rgba(30,20,8,0.6)',
             border: '1px solid rgba(92,60,24,0.25)',
@@ -199,7 +193,7 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-xl text-sm font-medium transition-all"
+              className="flex-1 px-2 sm:px-6 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all whitespace-nowrap"
               style={activeTab === tab.id ? {
                 background: 'linear-gradient(135deg, #a06b2a, #c48b3c)',
                 color: '#fff',
@@ -208,37 +202,37 @@ export default function App() {
                 color: '#7d5220',
               }}
             >
-              <span className="mr-1.5">{tab.emoji}</span>
-              {tab.label}
+              <span className="sm:mr-1.5">{tab.emoji}</span>
+              <span className="hidden sm:inline"> {tab.label}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* ── Main Content ── */}
-      <main className="max-w-7xl mx-auto px-4 mt-5 pb-6 mobile-pb-playback">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 mt-3 sm:mt-5 pb-6 mobile-pb-playback">
 
         {/* === SIMULATION TAB === */}
         {activeTab === 'simulation' && (
           <div className="tab-content">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-            {/* Left: Parameters */}
-            <div className="lg:col-span-3">
+            {/* Parameters — last on mobile, first on desktop */}
+            <div className="lg:col-span-3 order-3 lg:order-1">
               <div
-                className="glass-panel rounded-2xl p-5 lg:sticky lg:top-24"
+                className="glass-panel rounded-2xl p-4 sm:p-5 lg:sticky lg:top-24"
               >
                 <ParameterPanel params={params} onChange={setParams} />
               </div>
             </div>
 
-            {/* Center: Moka Pot Visualization */}
-            <div className="lg:col-span-4">
-              <div className="glass-panel rounded-2xl p-5">
+            {/* Center: Moka Pot Visualization — first on mobile */}
+            <div className="lg:col-span-4 order-1 lg:order-2">
+              <div className="glass-panel rounded-2xl p-4 sm:p-5">
                 <MokaPotDiagram currentPoint={currentPoint} potMaterial={params.potMaterial} />
 
-                {/* Playback Controls — hidden on mobile (shown in sticky bar) */}
-                <div className="mt-6 space-y-3 hidden lg:block">
+                {/* Playback Controls */}
+                <div className="mt-4 sm:mt-6 space-y-3">
                   {playbackControls}
                 </div>
 
@@ -348,8 +342,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Right: Charts */}
-            <div className="lg:col-span-5">
+            {/* Charts — second on mobile */}
+            <div className="lg:col-span-5 order-2 lg:order-3">
               <div className="glass-panel rounded-2xl p-5">
                 <SimulationCharts data={simData} currentTime={hasPlayed ? currentTime : maxTime} maxTime={maxTime} />
               </div>
@@ -417,13 +411,6 @@ export default function App() {
           </div>
         )}
       </main>
-
-      {/* ── Sticky Mobile Playback Bar (only on simulation tab, < lg) ── */}
-      {activeTab === 'simulation' && (
-        <div className="playback-sticky lg:hidden">
-          {playbackControls}
-        </div>
-      )}
 
       {/* ── Footer ── */}
       <footer
