@@ -124,7 +124,6 @@ export function simulate(params: MokaParams): SimulationPoint[] {
       // Once we approach boiling, steam starts forming
       if (waterTemp >= boilTemp - 5) {
         // Gradual pressure buildup as water approaches boiling
-        const tempAboveThreshold = waterTemp - (boilTemp - 5)
         // Steam pressure from ideal gas law approximation
         // P = nRT/V, where n increases as more water vaporizes
         steamFraction += (energyIn * 0.1) / (LATENT_HEAT_VAPORIZATION * waterMassKg)

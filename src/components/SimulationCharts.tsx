@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 import type { SimulationPoint } from '../physics'
 
 interface Props {
@@ -45,7 +45,7 @@ export default function SimulationCharts({ data, currentTime }: Props) {
                   color: '#f5e6cc',
                   fontSize: '12px',
                 }}
-                formatter={(value: number) => [`${value.toFixed(1)}°C`, 'Temperature']}
+                formatter={(value: number | undefined) => [`${(value ?? 0).toFixed(1)}°C`, 'Temperature']}
                 labelFormatter={v => `Time: ${v}s`}
               />
               <Area
@@ -92,7 +92,7 @@ export default function SimulationCharts({ data, currentTime }: Props) {
                   color: '#f5e6cc',
                   fontSize: '12px',
                 }}
-                formatter={(value: number) => [`${value.toFixed(3)} bar`, 'Pressure']}
+                formatter={(value: number | undefined) => [`${(value ?? 0).toFixed(3)} bar`, 'Pressure']}
                 labelFormatter={v => `Time: ${v}s`}
               />
               <Area
@@ -140,7 +140,7 @@ export default function SimulationCharts({ data, currentTime }: Props) {
                   color: '#f5e6cc',
                   fontSize: '12px',
                 }}
-                formatter={(value: number) => [`${value.toFixed(1)}%`, 'Extraction']}
+                formatter={(value: number | undefined) => [`${(value ?? 0).toFixed(1)}%`, 'Extraction']}
                 labelFormatter={v => `Time: ${v}s`}
               />
               <Area
