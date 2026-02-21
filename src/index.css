@@ -24,40 +24,209 @@
   box-sizing: border-box;
 }
 
+/* ============================================================
+   NOISE / GRAIN TEXTURE — warm analog feel
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
 body {
   margin: 0;
-  background: linear-gradient(135deg, #1e1408 0%, #2d1f12 50%, #1a1008 100%);
+  background: radial-gradient(ellipse at 20% 20%, #2a1c0e 0%, #1e1408 35%, #180f06 70%, #1a1008 100%);
+  background-attachment: fixed;
   color: #f5e6cc;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
 }
 
+/* ============================================================
+   GLASS MORPHISM — panel utility
+   ============================================================ */
+.glass-panel {
+  background: rgba(61, 40, 16, 0.18);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(212, 165, 100, 0.12);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(212, 165, 100, 0.08);
+}
+
+.glass-panel-hover {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.glass-panel-hover:hover {
+  border-color: rgba(212, 165, 100, 0.22);
+  box-shadow:
+    0 8px 40px rgba(160, 107, 42, 0.18),
+    0 0 0 1px rgba(212, 165, 100, 0.1),
+    inset 0 1px 0 rgba(212, 165, 100, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   SLIDERS — bigger touch targets + glow
+   ============================================================ */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
   border-radius: 3px;
-  background: #5c3c18;
+  background: linear-gradient(to right, #5c3c18, #3d2810);
   outline: none;
+  /* larger hit area on mobile */
+  padding: 8px 0;
+  cursor: pointer;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: #d4a564;
+  background: radial-gradient(circle at 38% 35%, #e8c99b, #c48b3c);
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(212, 165, 100, 0.4);
+  box-shadow:
+    0 0 10px rgba(212, 165, 100, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow:
+    0 0 18px rgba(212, 165, 100, 0.75),
+    0 3px 10px rgba(0, 0, 0, 0.5);
+  transform: scale(1.12);
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: #d4a564;
+  background: radial-gradient(circle at 38% 35%, #e8c99b, #c48b3c);
   cursor: pointer;
   border: none;
-  box-shadow: 0 0 8px rgba(212, 165, 100, 0.4);
+  box-shadow: 0 0 10px rgba(212, 165, 100, 0.5);
+  transition: box-shadow 0.2s ease;
+}
+
+/* ============================================================
+   TAB TRANSITIONS
+   ============================================================ */
+.tab-content {
+  animation: fadeInUp 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   ACCORDION — smooth max-height transition
+   ============================================================ */
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.28s ease;
+  opacity: 0;
+}
+
+.accordion-body.open {
+  max-height: 800px;
+  opacity: 1;
+}
+
+/* ============================================================
+   EQUATION BOX
+   ============================================================ */
+.equation-box {
+  background: linear-gradient(135deg, rgba(30, 20, 8, 0.8), rgba(61, 40, 16, 0.6));
+  border: 1px solid rgba(212, 165, 100, 0.25);
+  border-left: 3px solid #c48b3c;
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.equation-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 100, 0.03), transparent);
+}
+
+/* ============================================================
+   RESULT NUMBER — animated pop
+   ============================================================ */
+@keyframes resultPop {
+  0% { transform: scale(0.88); opacity: 0; }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.result-pop {
+  animation: resultPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   STICKY PLAYBACK — mobile bottom bar
+   ============================================================ */
+@media (max-width: 1023px) {
+  .playback-sticky {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: rgba(20, 12, 4, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(212, 165, 100, 0.15);
+    padding: 12px 16px 20px;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* On mobile add bottom padding so content isn't hidden behind sticky bar */
+@media (max-width: 1023px) {
+  .mobile-pb-playback {
+    padding-bottom: 96px;
+  }
+}
+
+/* ============================================================
+   CHART TOOLTIP — custom override
+   ============================================================ */
+.recharts-tooltip-wrapper {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+}
+
+/* ============================================================
+   STAT CARD — subtle pulse on value change
+   ============================================================ */
+@keyframes statGlow {
+  0%   { box-shadow: 0 0 0 0 rgba(160, 107, 42, 0.3); }
+  70%  { box-shadow: 0 0 0 8px rgba(160, 107, 42, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(160, 107, 42, 0); }
 }

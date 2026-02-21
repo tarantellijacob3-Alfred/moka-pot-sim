@@ -65,38 +65,65 @@ export default function EducationPanel({ altitude }: Props) {
         📚 The Science
       </h2>
 
-      {sections.map((section, i) => (
-        <div
-          key={i}
-          className="bg-coffee-800/30 rounded-xl border border-coffee-700/20 overflow-hidden transition-all"
-        >
-          <button
-            onClick={() => setOpenSection(openSection === i ? null : i)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-coffee-700/20 transition-colors"
+      {sections.map((section, i) => {
+        const isOpen = openSection === i
+        return (
+          <div
+            key={i}
+            className="glass-panel rounded-xl overflow-hidden"
+            style={{
+              transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+              borderColor: isOpen ? 'rgba(212,165,100,0.25)' : undefined,
+            }}
           >
-            <span className="font-medium text-coffee-200 text-sm flex items-center gap-2">
-              <span className="text-lg">{section.emoji}</span>
-              {section.title}
-            </span>
-            <span className={`text-coffee-500 transition-transform ${openSection === i ? 'rotate-180' : ''}`}>
-              ▾
-            </span>
-          </button>
+            {/* Header button */}
+            <button
+              onClick={() => setOpenSection(isOpen ? null : i)}
+              className="w-full flex items-center justify-between p-4 text-left"
+              style={{ background: isOpen ? 'rgba(61,40,16,0.25)' : 'transparent', transition: 'background 0.25s ease' }}
+            >
+              <span className="font-medium text-coffee-200 text-sm flex items-center gap-2.5">
+                <span
+                  className="text-lg flex items-center justify-center w-8 h-8 rounded-lg"
+                  style={{
+                    background: isOpen ? 'rgba(160,107,42,0.2)' : 'rgba(61,40,16,0.4)',
+                    transition: 'background 0.25s ease',
+                  }}
+                >
+                  {section.emoji}
+                </span>
+                {section.title}
+              </span>
+              <span
+                className="text-coffee-500 ml-2 flex-shrink-0"
+                style={{
+                  display: 'inline-block',
+                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              >
+                ▾
+              </span>
+            </button>
 
-          {openSection === i && (
-            <div className="px-4 pb-4 space-y-3">
-              <p className="text-sm text-coffee-300 leading-relaxed">
-                {section.content}
-              </p>
-              {section.equation && (
-                <div className="bg-coffee-900/60 rounded-lg p-3 text-center">
-                  <code className="text-coffee-200 text-sm font-mono">{section.equation}</code>
-                </div>
-              )}
+            {/* Body with smooth max-height transition */}
+            <div className={`accordion-body${isOpen ? ' open' : ''}`}>
+              <div className="px-4 pb-5 space-y-3">
+                <p className="text-sm text-coffee-300 leading-relaxed">
+                  {section.content}
+                </p>
+                {section.equation && (
+                  <div className="equation-box">
+                    <code className="text-coffee-200 text-sm font-mono font-semibold tracking-wide">
+                      {section.equation}
+                    </code>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+          </div>
+        )
+      })}
     </div>
   )
 }

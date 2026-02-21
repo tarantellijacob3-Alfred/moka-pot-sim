@@ -40,11 +40,16 @@ export default function ParameterPanel({ params, onChange }: Props) {
                   onChange({ ...params, stoveType: type, stovePower: Math.round((newRange.min + newRange.max) / 2) })
                 }
               }}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                params.stoveType === type
-                  ? 'bg-coffee-500 text-white shadow-lg shadow-coffee-500/30'
-                  : 'bg-coffee-800/50 text-coffee-300 hover:bg-coffee-700/50'
-              }`}
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-all"
+              style={params.stoveType === type ? {
+                background: 'linear-gradient(135deg, #a06b2a, #c48b3c)',
+                color: '#fff',
+                boxShadow: '0 4px 12px rgba(160,107,42,0.35)',
+              } : {
+                background: 'rgba(61,40,16,0.5)',
+                color: '#d4a564',
+                border: '1px solid rgba(92,60,24,0.3)',
+              }}
             >
               {type === 'gas' ? '🔥 Gas' : type === 'electric' ? '⚡ Electric' : '🧲 Induction'}
             </button>
@@ -84,11 +89,16 @@ export default function ParameterPanel({ params, onChange }: Props) {
             <button
               key={size}
               onClick={() => update('potSize', size)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                params.potSize === size
-                  ? 'bg-coffee-500 text-white shadow-lg shadow-coffee-500/30'
-                  : 'bg-coffee-800/50 text-coffee-300 hover:bg-coffee-700/50'
-              }`}
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-all"
+              style={params.potSize === size ? {
+                background: 'linear-gradient(135deg, #a06b2a, #c48b3c)',
+                color: '#fff',
+                boxShadow: '0 4px 12px rgba(160,107,42,0.35)',
+              } : {
+                background: 'rgba(61,40,16,0.5)',
+                color: '#d4a564',
+                border: '1px solid rgba(92,60,24,0.3)',
+              }}
             >
               {size}-cup
             </button>
@@ -104,11 +114,16 @@ export default function ParameterPanel({ params, onChange }: Props) {
             <button
               key={mat}
               onClick={() => update('potMaterial', mat)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                params.potMaterial === mat
-                  ? 'bg-coffee-500 text-white shadow-lg shadow-coffee-500/30'
-                  : 'bg-coffee-800/50 text-coffee-300 hover:bg-coffee-700/50'
-              }`}
+              className="px-3 py-2 rounded-lg text-sm font-medium transition-all"
+              style={params.potMaterial === mat ? {
+                background: 'linear-gradient(135deg, #a06b2a, #c48b3c)',
+                color: '#fff',
+                boxShadow: '0 4px 12px rgba(160,107,42,0.35)',
+              } : {
+                background: 'rgba(61,40,16,0.5)',
+                color: '#d4a564',
+                border: '1px solid rgba(92,60,24,0.3)',
+              }}
             >
               {mat === 'aluminum' ? '🪶 Aluminum' : '🛡️ Stainless Steel'}
             </button>
