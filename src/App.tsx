@@ -100,7 +100,7 @@ export default function App() {
         min={0}
         max={maxTime}
         step={1}
-        value={currentTime}
+        value={hasPlayed ? currentTime : maxTime}
         onChange={e => {
           setCurrentTime(Number(e.target.value))
           setIsPlaying(false)
@@ -123,7 +123,7 @@ export default function App() {
           {isPlaying ? '⏸ Pause' : '▶ Play'}
         </button>
         <span className="text-coffee-400 text-sm font-mono">
-          {Math.round(currentTime)}s / {maxTime}s
+          {Math.round(hasPlayed ? currentTime : maxTime)}s / {maxTime}s
         </span>
         <select
           value={playbackSpeed}
@@ -216,7 +216,18 @@ export default function App() {
 
         {/* === SIMULATION TAB === */}
         {activeTab === 'simulation' && (
-          <div className="tab-content grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div className="tab-content">
+            {/* Getting started hint */}
+            {!hasPlayed && (
+              <div className="mb-4 rounded-xl p-3 text-center text-sm" style={{
+                background: 'linear-gradient(135deg, rgba(160,107,42,0.1), rgba(196,139,60,0.05))',
+                border: '1px solid rgba(160,107,42,0.2)',
+                color: '#d4a564',
+              }}>
+                👋 Adjust parameters on the left, then hit <strong>▶ Play</strong> to watch the brew unfold in real time — or just read the results below!
+              </div>
+            )}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
             {/* Left: Parameters */}
             <div className="lg:col-span-3">
@@ -349,6 +360,7 @@ export default function App() {
                 <SimulationCharts data={simData} currentTime={hasPlayed ? currentTime : maxTime} />
               </div>
             </div>
+          </div>
           </div>
         )}
 
