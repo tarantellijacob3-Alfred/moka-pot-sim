@@ -349,7 +349,7 @@ export default function App() {
             {/* Right: Charts */}
             <div className="lg:col-span-5">
               <div className="glass-panel rounded-2xl p-5">
-                <SimulationCharts data={simData} currentTime={hasPlayed ? currentTime : maxTime} />
+                <SimulationCharts data={simData} currentTime={hasPlayed ? currentTime : maxTime} maxTime={maxTime} />
               </div>
             </div>
           </div>

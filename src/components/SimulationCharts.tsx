@@ -7,6 +7,7 @@ import type { SimulationPoint } from '../physics'
 interface Props {
   data: SimulationPoint[]
   currentTime: number
+  maxTime: number
 }
 
 interface TooltipPayloadItem {
@@ -120,7 +121,7 @@ function ChartLegend(_props: { payload?: LegendPayload[] }) {
   )
 }
 
-export default function SimulationCharts({ data, currentTime }: Props) {
+export default function SimulationCharts({ data, currentTime, maxTime }: Props) {
   // Build visible data with extractionScaled for visual mapping
   const visibleData = data
     .filter(p => p.time <= currentTime)
@@ -130,6 +131,9 @@ export default function SimulationCharts({ data, currentTime }: Props) {
     }))
 
   const { brewStart, doneStart } = getPhaseTransitions(data)
+  // Pre-compute fixed pressure domain from full data so Y-axis doesn't jump
+  const maxPressure = Math.max(...data.map(p => p.pressure), 0.5)
+  const pressureCeil = Math.ceil(maxPressure * 2) / 2 // round up to nearest 0.5
 
   const refLineProps = {
     strokeDasharray: '4 3' as const,
@@ -161,9 +165,11 @@ export default function SimulationCharts({ data, currentTime }: Props) {
 
           <CartesianGrid strokeDasharray="3 3" stroke={GRID_COLOR} vertical={false} />
 
-          {/* Shared X axis */}
+          {/* Shared X axis — fixed domain so lines don't shift during animation */}
           <XAxis
             dataKey="time"
+            type="number"
+            domain={[0, maxTime]}
             stroke={AXIS_COLOR}
             fontSize={10}
             tickFormatter={v => `${v}s`}
@@ -188,7 +194,7 @@ export default function SimulationCharts({ data, currentTime }: Props) {
             orientation="right"
             stroke="#4a5568"
             fontSize={10}
-            domain={[0, 'auto']}
+            domain={[0, pressureCeil]}
             tickFormatter={v => `${v} bar`}
             tickLine={false}
             axisLine={false}
