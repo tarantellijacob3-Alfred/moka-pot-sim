@@ -6,6 +6,7 @@ import ParameterPanel from './components/ParameterPanel'
 import SimulationCharts from './components/SimulationCharts'
 import MatchMyStove from './components/MatchMyStove'
 import EducationPanel from './components/EducationPanel'
+import OptimizerPanel from './components/OptimizerPanel'
 
 const DEFAULT_PARAMS: MokaParams = {
   stoveType: 'gas',
@@ -17,7 +18,7 @@ const DEFAULT_PARAMS: MokaParams = {
   startingWaterTemp: 20,
 }
 
-type Tab = 'simulation' | 'match' | 'learn'
+type Tab = 'simulation' | 'optimize' | 'match' | 'learn'
 
 export default function App() {
   const [params, setParams] = useState<MokaParams>(DEFAULT_PARAMS)
@@ -90,6 +91,7 @@ export default function App() {
 
   const tabs: { id: Tab; label: string; emoji: string }[] = [
     { id: 'simulation', label: 'Simulate', emoji: '📊' },
+    { id: 'optimize', label: 'Optimize', emoji: '🎯' },
     { id: 'match', label: 'Match Stove', emoji: '🔄' },
     { id: 'learn', label: 'Learn', emoji: '📚' },
   ]
@@ -353,6 +355,21 @@ export default function App() {
               </div>
             </div>
           </div>
+          </div>
+        )}
+
+        {/* === OPTIMIZE TAB === */}
+        {activeTab === 'optimize' && (
+          <div className="tab-content max-w-2xl mx-auto">
+            <div className="glass-panel rounded-2xl p-6">
+              <OptimizerPanel
+                currentParams={params}
+                onApply={(optimized) => {
+                  setParams(optimized)
+                  setActiveTab('simulation')
+                }}
+              />
+            </div>
           </div>
         )}
 
