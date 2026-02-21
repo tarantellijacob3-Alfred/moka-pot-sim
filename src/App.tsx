@@ -24,20 +24,22 @@ export default function App() {
   const [simData, setSimData] = useState<SimulationPoint[]>([])
   const [currentTime, setCurrentTime] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [playbackSpeed, setPlaybackSpeed] = useState(10)
+  const [playbackSpeed, setPlaybackSpeed] = useState(25)
   const [activeTab, setActiveTab] = useState<Tab>('simulation')
   const animRef = useRef<number | null>(null)
   const lastFrameRef = useRef<number>(0)
 
   const [hasPlayed, setHasPlayed] = useState(false)
 
-  // Run simulation when params change
+  // Run simulation when params change — auto-play so lines draw live
   useEffect(() => {
     const data = simulate(params)
     setSimData(data)
     setCurrentTime(0)
-    setIsPlaying(false)
-    setHasPlayed(false)
+    setHasPlayed(true)
+    // Small delay so the UI renders before animation starts
+    const timer = setTimeout(() => setIsPlaying(true), 100)
+    return () => clearTimeout(timer)
   }, [params])
 
   // Animation loop
@@ -217,16 +219,6 @@ export default function App() {
         {/* === SIMULATION TAB === */}
         {activeTab === 'simulation' && (
           <div className="tab-content">
-            {/* Getting started hint */}
-            {!hasPlayed && (
-              <div className="mb-4 rounded-xl p-3 text-center text-sm" style={{
-                background: 'linear-gradient(135deg, rgba(160,107,42,0.1), rgba(196,139,60,0.05))',
-                border: '1px solid rgba(160,107,42,0.2)',
-                color: '#d4a564',
-              }}>
-                👋 Adjust parameters on the left, then hit <strong>▶ Play</strong> to watch the brew unfold in real time — or just read the results below!
-              </div>
-            )}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
             {/* Left: Parameters */}
