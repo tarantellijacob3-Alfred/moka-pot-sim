@@ -243,8 +243,8 @@ export function simulate(params: MokaParams): SimulationPoint[] {
     if (drivingPa > 0 && extractedMl < totalToExtract) {
       // Q = (k × A × ΔP) / (μ × L)
       flowRateM3s = (permeability * filterArea * drivingPa) / (viscosity * bedThickness)
-      // Real moka pot max flow: ~3 mL/s at peak (most extraction at 1.5-2 mL/s)
-      flowRateM3s = Math.min(flowRateM3s, 3e-6)
+      // Real moka pot max flow: ~5 mL/s at peak (most extraction at 1.5-2 mL/s)
+      flowRateM3s = Math.min(flowRateM3s, 5e-6)
     }
     currentFlowRate = flowRateM3s * 1e6
 
@@ -386,11 +386,12 @@ export function getBrewQuality(points: SimulationPoint[], params: MokaParams): B
   else if (peakPressure <= 3) pressureScore = 100 - (peakPressure - 2) * 40
   else pressureScore = 30
 
-  // Temp: ideal 92-100°C
+  // Temp: ideal 92-102°C (slightly above boiling is normal in pressurized moka pot)
   let tempScore: number
-  if (maxTemp < 88) tempScore = 40
-  else if (maxTemp <= 100) tempScore = 100
-  else if (maxTemp <= boilTemp + 5) tempScore = 70
+  if (maxTemp < 85) tempScore = 30
+  else if (maxTemp < 92) tempScore = 30 + (maxTemp - 85) / 7 * 70
+  else if (maxTemp <= 102) tempScore = 100
+  else if (maxTemp <= 105) tempScore = 100 - (maxTemp - 102) / 3 * 40
   else tempScore = 40
 
   // Flow: ideal 1.5-2.5 mL/s
@@ -404,34 +405,64 @@ export function getBrewQuality(points: SimulationPoint[], params: MokaParams): B
   const score = Math.round(timeScore * 0.35 + pressureScore * 0.25 + tempScore * 0.2 + flowScore * 0.2)
   const clampedScore = Math.max(0, Math.min(100, score))
 
+  // Label based on score first, with overrides only for extreme conditions
   let label: BrewQuality['label']
   let tip: string
 
-  if (maxTemp > boilTemp + 5 && peakPressure > 2.5) {
-    label = 'Bitter'
-    tip = 'Too hot & too much pressure. Reduce heat. Try pre-heating water to 80°C.'
-  } else if (brewTimeMin < 2) {
-    label = 'Under-extracted'
-    tip = 'Too fast — use a finer grind (2-3) or lower heat.'
-  } else if (peakPressure > 2.5) {
-    label = 'Bitter'
-    tip = 'Pressure too high — coarser grind or lower heat.'
-  } else if (brewTimeMin > 7) {
-    label = 'Over-extracted'
-    tip = 'Too slow — coarser grind or higher heat. Pre-heat water.'
-  } else if (clampedScore >= 80) {
+  if (clampedScore >= 80) {
     label = 'Excellent'
     tip = 'Sweet spot! Rich, balanced coffee with bright acidity and nutty/caramel notes.'
+    // Minor suggestions even when excellent
+    if (peakPressure > 2.5) tip += ' Tip: slightly lower heat could smooth out the flavor.'
+    if (avgFlowRate < 1.0) tip += ' Tip: a slightly coarser grind would improve flow.'
   } else if (clampedScore >= 60) {
     label = 'Good'
-    tip = avgFlowRate < 1.5
-      ? 'Try a slightly coarser grind to improve flow.'
-      : avgFlowRate > 2.5
-      ? 'Try a finer grind to slow flow and enrich extraction.'
-      : 'Close to perfect — fine-tune grind or heat by one step.'
+    if (brewTimeMin < 2.5) {
+      tip = 'Brew is a bit fast. Try lower heat or finer grind for more body.'
+    } else if (brewTimeMin > 7) {
+      tip = 'Taking a bit long. Try slightly higher heat or coarser grind.'
+    } else if (peakPressure > 2.5) {
+      tip = 'Pressure is high — a coarser grind or lower heat would help.'
+    } else if (avgFlowRate < 1.0) {
+      tip = 'Flow is slow — a slightly coarser grind would improve extraction.'
+    } else if (avgFlowRate > 3.0) {
+      tip = 'Flow is fast — a finer grind would slow it down and add body.'
+    } else {
+      tip = 'Close to perfect — fine-tune grind or heat by one step.'
+    }
+  } else if (clampedScore >= 40) {
+    // Determine primary issue
+    if (maxTemp > boilTemp + 5 && peakPressure > 2.5) {
+      label = 'Bitter'
+      tip = 'Too hot & too much pressure. Reduce heat significantly. Try pre-heating water to 80°C.'
+    } else if (peakPressure > 3.0) {
+      label = 'Bitter'
+      tip = 'Pressure way too high — use a coarser grind or lower heat.'
+    } else if (brewTimeMin < 2) {
+      label = 'Under-extracted'
+      tip = 'Too fast — use a finer grind (2-3) or lower heat for more contact time.'
+    } else if (brewTimeMin > 8) {
+      label = 'Over-extracted'
+      tip = 'Way too slow — coarser grind or higher heat. Try pre-heating your water.'
+    } else {
+      label = 'Under-extracted'
+      tip = 'Use a finer grind (3-4 for moka, like fine salt) and ensure a tight seal.'
+    }
   } else {
-    label = 'Under-extracted'
-    tip = 'Use a finer grind (3-4 for moka, like fine salt) and ensure a tight seal.'
+    // Very low score
+    if (brewTimeMin > 8) {
+      label = 'Over-extracted'
+      tip = 'Brew took far too long. Use higher heat and coarser grind. Check your seal.'
+    } else if (brewTimeMin < 2) {
+      label = 'Under-extracted'
+      tip = 'Way too fast — much finer grind needed, or significantly reduce heat.'
+    } else if (peakPressure > 3.0) {
+      label = 'Bitter'
+      tip = 'Extreme pressure — use a much coarser grind and reduce heat.'
+    } else {
+      label = 'Under-extracted'
+      tip = 'Poor extraction. Check grind (should be fine like salt), seal, and heat level.'
+    }
   }
 
   return { score: clampedScore, label, tip }
