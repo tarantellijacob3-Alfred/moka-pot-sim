@@ -1,3 +1,4 @@
+import { STOVE_PRESETS, ALTITUDE_PRESETS } from '../physics'
 import type { MokaParams } from '../physics'
 
 interface Props {
@@ -65,6 +66,22 @@ export default function ParameterPanel({ params, onChange }: Props) {
         <div className="flex justify-between items-baseline mb-2">
           <label className="text-sm text-coffee-300 font-medium">Stove Power</label>
           <span className="text-coffee-100 font-bold">{params.stovePower}W</span>
+        </div>
+        {/* Quick presets */}
+        <div className="flex gap-1.5 flex-wrap mb-2">
+          {STOVE_PRESETS.filter(p => p.type === params.stoveType).map(preset => (
+            <button
+              key={preset.name}
+              onClick={() => update('stovePower', preset.power)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                params.stovePower === preset.power
+                  ? 'bg-amber-700/60 text-amber-100 border border-amber-500/50'
+                  : 'bg-coffee-800/40 text-coffee-400 border border-coffee-700/30 hover:bg-coffee-700/50'
+              }`}
+            >
+              {preset.name.split(' - ')[1]}
+            </button>
+          ))}
         </div>
         <input
           type="range"
@@ -181,6 +198,22 @@ export default function ParameterPanel({ params, onChange }: Props) {
         <div className="flex justify-between items-baseline mb-2">
           <label className="text-sm text-coffee-300 font-medium">Altitude</label>
           <span className="text-coffee-100 font-bold">{params.altitude}m ({(params.altitude * 3.281).toFixed(0)}ft)</span>
+        </div>
+        {/* City presets */}
+        <div className="flex gap-1.5 flex-wrap mb-2">
+          {ALTITUDE_PRESETS.map(preset => (
+            <button
+              key={preset.name}
+              onClick={() => update('altitude', preset.altitude)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                params.altitude === preset.altitude
+                  ? 'bg-amber-700/60 text-amber-100 border border-amber-500/50'
+                  : 'bg-coffee-800/40 text-coffee-400 border border-coffee-700/30 hover:bg-coffee-700/50'
+              }`}
+            >
+              {preset.name}
+            </button>
+          ))}
         </div>
         <input
           type="range"

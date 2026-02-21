@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { simulate, getBrewTime, getPeakPressure, boilingPoint } from './physics'
+import { simulate, getBrewTime, getPeakPressure, boilingPoint, getBrewQuality, getEnergyStats } from './physics'
 import type { MokaParams, SimulationPoint } from './physics'
 import MokaPotDiagram from './components/MokaPotDiagram'
 import ParameterPanel from './components/ParameterPanel'
@@ -77,6 +77,8 @@ export default function App() {
   const brewTime = getBrewTime(simData)
   const peakPressure = getPeakPressure(simData)
   const bp = boilingPoint(params.altitude)
+  const brewQuality = getBrewQuality(simData, params)
+  const energyStats = getEnergyStats(simData, params)
 
   const handlePlay = () => {
     if (currentTime >= maxTime) setCurrentTime(0)
@@ -266,6 +268,77 @@ export default function App() {
                       <div className={`text-sm font-bold ${stat.color}`}>{stat.value}</div>
                     </div>
                   ))}
+                </div>
+
+                {/* Brew Quality Score */}
+                <div className="mt-4 rounded-xl p-4" style={{
+                  background: `linear-gradient(135deg, rgba(20,12,4,0.7), rgba(${
+                    brewQuality.score >= 80 ? '22,163,74' : brewQuality.score >= 60 ? '202,138,4' : '220,38,38'
+                  },0.12))`,
+                  border: `1px solid ${brewQuality.score >= 80 ? 'rgba(34,197,94,0.3)' : brewQuality.score >= 60 ? 'rgba(234,179,8,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-coffee-400 font-medium uppercase tracking-wider">Brew Quality</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                      brewQuality.score >= 80 ? 'bg-green-900/50 text-green-300' :
+                      brewQuality.score >= 60 ? 'bg-yellow-900/50 text-yellow-300' :
+                      'bg-red-900/50 text-red-300'
+                    }`}>
+                      {brewQuality.label}
+                    </span>
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <span className="text-3xl font-black" style={{
+                      color: brewQuality.score >= 80 ? '#4ade80' : brewQuality.score >= 60 ? '#facc15' : '#f87171',
+                      textShadow: `0 0 20px ${brewQuality.score >= 80 ? 'rgba(74,222,128,0.3)' : brewQuality.score >= 60 ? 'rgba(250,204,21,0.3)' : 'rgba(248,113,113,0.3)'}`,
+                    }}>
+                      {brewQuality.score}
+                    </span>
+                    <span className="text-coffee-500 text-sm mb-1">/ 100</span>
+                  </div>
+                  {/* Quality bar */}
+                  <div className="mt-2 h-1.5 rounded-full bg-coffee-800/50 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{
+                        width: `${brewQuality.score}%`,
+                        background: brewQuality.score >= 80
+                          ? 'linear-gradient(90deg, #22c55e, #4ade80)'
+                          : brewQuality.score >= 60
+                          ? 'linear-gradient(90deg, #ca8a04, #facc15)'
+                          : 'linear-gradient(90deg, #dc2626, #f87171)',
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-coffee-400 mt-2 leading-relaxed">{brewQuality.tip}</p>
+                </div>
+
+                {/* Energy Stats */}
+                <div className="mt-3 rounded-xl p-3" style={{
+                  background: 'rgba(20,12,4,0.5)',
+                  border: '1px solid rgba(61,40,16,0.4)',
+                }}>
+                  <div className="text-xs text-coffee-400 font-medium uppercase tracking-wider mb-2">Energy</div>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-coffee-500">Input</span>
+                      <span className="text-coffee-200 font-medium">{(energyStats.totalEnergyIn / 1000).toFixed(1)} kJ</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-coffee-500">→ Water</span>
+                      <span className="text-coffee-200 font-medium">{(energyStats.energyToWater / 1000).toFixed(1)} kJ</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-coffee-500">→ Steam</span>
+                      <span className="text-coffee-200 font-medium">{(energyStats.energyToSteam / 1000).toFixed(1)} kJ</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-coffee-500">Efficiency</span>
+                      <span className={`font-bold ${energyStats.efficiency > 50 ? 'text-green-400' : 'text-amber-400'}`}>
+                        {energyStats.efficiency.toFixed(0)}%
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
