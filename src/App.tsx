@@ -9,8 +9,8 @@ import EducationPanel from './components/EducationPanel'
 
 const DEFAULT_PARAMS: MokaParams = {
   stoveType: 'gas',
-  stovePower: 1500,
-  grindSize: 3,
+  stovePower: 800,     // Low-medium gas — ideal for 3-cup moka
+  grindSize: 3,        // Fine, like table salt — moka ideal
   potMaterial: 'aluminum',
   potSize: 3,
   altitude: 0,

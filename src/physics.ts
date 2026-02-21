@@ -289,25 +289,26 @@ export function simulate(params: MokaParams): SimulationPoint[] {
       // The water temperature barely rises above boiling because
       // energy is consumed by the phase change (latent heat).
 
-      // In a real moka pot at boiling:
-      // ~10% raises temperature slightly (pressurized vessel allows superheating)
-      // ~40% goes to steam production
-      // ~50% is lost to environment (radiation, convection from hot pot, heating upper chamber)
-      // This is why moka pots take 4-6 min even though they seem "at full boil"
-      const tempRiseFraction = 0.10
-      const envLossFraction = 0.50 // large loss from hot pot surface
+      // Energy partition at/above boiling in sealed moka pot:
+      // ~5% raises temperature slightly (superheating in pressurized vessel)
+      // ~65% goes to steam production (drives the extraction)
+      // ~30% lost to environment (radiation, heating upper chamber, conduction)
+      const tempRiseFraction = 0.05
+      const envLossFraction = 0.60
       const tempEnergy = netHeat * tempRiseFraction
       waterTemp += tempEnergy / effectiveThermalMass
-      waterTemp = Math.min(waterTemp, boilTemp + 8) // max overshoot in sealed vessel
+      waterTemp = Math.min(waterTemp, boilTemp + 5) // max overshoot in sealed vessel
 
-      // Remaining energy goes to steam production
-      // BUT: when water is flowing through the system, the hot water exiting
-      // carries energy away (convective loss). This is the key self-regulating
-      // mechanism: higher flow = more energy carried away = less steam = lower pressure
-      const flowLossW = currentFlowRate * 1e-6 * 1000 * C_WATER * (waterTemp - ambientTemp) // W
+      // Steam production with flow feedback:
+      // When water flows out, it carries some energy away. But the key point is:
+      // the flowing water was ALREADY hot (near boiling) — it doesn't remove much
+      // energy beyond what's already in it. The main feedback is that as water exits,
+      // the headspace grows, so more steam is needed to maintain pressure.
+      // Small convective loss: only the differential between exit temp and entry temp matters
+      const flowLossW = currentFlowRate * 1e-6 * 1000 * C_WATER * 5 // ~5°C differential
       const flowLossEnergy = flowLossW * dt
-      const steamFraction = 1 - tempRiseFraction - envLossFraction
-      const availableForSteam = Math.max(0, netHeat * steamFraction - flowLossEnergy)
+      const steamFractionOfHeat = 1 - tempRiseFraction - envLossFraction
+      const availableForSteam = Math.max(0, netHeat * steamFractionOfHeat - flowLossEnergy)
 
       if (availableForSteam > 0) {
         steamMassKg += availableForSteam / L_VAP
@@ -316,10 +317,10 @@ export function simulate(params: MokaParams): SimulationPoint[] {
       // Steam condenses on cooler pot walls (upper chamber is cooler than boiling water)
       // This is a significant effect in real moka pots — the upper chamber acts as a condenser
       // Rate proportional to steam mass and temperature differential
-      // Condensation scales with steam mass and pot surface area
-      // Larger pots condense more (more wall area), smaller pots are hotter
-      const potSurfaceFactor = 0.8 + 0.4 * (params.potSize / 6)
-      const condensationRate = steamMassKg * 0.15 * potSurfaceFactor * dt
+      // Condensation on cooler upper chamber walls — moderate rate
+      // In real moka pot: upper chamber heats up during brewing, reducing condensation over time
+      const potSurfaceFactor = 0.8 + 0.2 * (params.potSize / 6)
+      const condensationRate = steamMassKg * 0.10 * potSurfaceFactor * dt
       steamMassKg = Math.max(0, steamMassKg - condensationRate)
     }
 
